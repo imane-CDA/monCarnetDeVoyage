@@ -11,7 +11,7 @@ import SwiftUI
 struct monCarnetDeVoyageApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ProfilView(users: User.mockUsers)
         }
     }
 }
