@@ -8,12 +8,10 @@
 import SwiftUI
 
 
-// Ajout de fonctionnalités au modèle via une extension sans modifier le model original.
+// Extension : utilisée pour ajouter des données de test au modèle User
 extension User {
     
-    // static let : accessible sans instanciation
-    static let mockUsers: [User] = [
-        User(pseudo: "Imane", photo: "userDefaut"),
-        User(pseudo: "Momo", photo: "")
-    ]
+    // Données fictives 
+    static let user: User = User(pseudo: "Imane", photo: "userDefaut")
+    
 }

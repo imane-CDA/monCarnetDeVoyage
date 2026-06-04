@@ -9,28 +9,81 @@ import SwiftUI
 
 struct ProfilView: View {
     
-    // tableau de User injecté depuis l'extérieur pour construire l'UI
-    var users: [User]
+    // Utilisateur injecté depuis l'extérieur (données du profil)
+    var user: User
     
     var body: some View {
-        VStack {
-            ForEach(users) { user in
-                HStack {
-                    Image(user.photo)
-                        .resizable()
-                        .frame(width: 250, height: 250)
+        
+        ZStack {
+// background bleu
+//            Color(.fondBleu)
+                
+            
+            //Scrollview
+            ScrollView {
+            
+                
+                // VStack principal
+                VStack(spacing: 20) {
+                    
+                    // Hstack image + pseudo
+                    HStack(spacing: 15) {
                         
-                    Text(user.pseudo)
-                        .font(.largeTitle)
-                }
-            }
+                        //photo
+                        Image(user.photo)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 90, height: 90)
+                            .clipShape(Circle())
+                            .overlay(
+                                Circle()
+                                .stroke(.white, lineWidth: 3)
+                            )
+                            .shadow(radius: 5)
+                        
+                        // pseudo
+                        Text(user.pseudo)
+                            .font(.largeTitle)
+                            .bold()
+                            .padding(.top, 40)
+                        
+                        Spacer()
+                        
+                    }.padding()
+                    
+                    // Titre -> mes lieux visités
+                    HStack {
+                        
+                        Text("Mes lieux visités")
+                            .font(.title2)
+                            .bold()
+                        
+                        Image(systemName: "map")
+                        
+                        Spacer()
+                        
+                    } .padding(.horizontal)
+                    
+                    // cartes
+                        VStack(spacing: 16) {
+                            
+                            // ForEach parcours le tableau et affiche les cartes
+                            ForEach(Card.cardTest) { card in
+                                
+                                CardView(card: card)
+                                
+                            }
+                        }
+                    }
+                } .padding()
+                .scrollIndicators(.hidden)
+            
+            } .ignoresSafeArea()
         }
-        .padding()
     }
-}
 
 
 #Preview {
-    // Injection de données mock pour tester le rendu de la vue
-    ProfilView(users: User.mockUsers)
+    // Je passe un utilisateur de type User, et je lui passe les données fictives (User.user) pour l’afficher
+    ProfilView(user: User.user)
 }
