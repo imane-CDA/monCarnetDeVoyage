@@ -10,12 +10,12 @@ import SwiftUI
 struct CardView: View {
     
     // carte injecté depuis l'extérieur (données de card)
-    var card: Card
+    var lieu: Lieu
     
     var body: some View {
         
         // image
-        Image(card.photo)
+        Image(lieu.photo)
             .resizable()
             .scaledToFill()
             .frame(height: 220)
@@ -30,7 +30,7 @@ struct CardView: View {
                     HStack {
                         
                         // ville
-                        Text(card.ville)
+                        Text(lieu.ville)
                             .font(.headline)
                             .bold()
                         
@@ -41,7 +41,7 @@ struct CardView: View {
                             
                             ForEach(0..<5) { i in
         
-                                Image(systemName: i < card.note ? "star.fill" : "star")
+                                Image(systemName: i < lieu.note ? "star.fill" : "star")
                                     .foregroundStyle(.yellow)
                                     .font(.caption2)
                             }
@@ -49,11 +49,11 @@ struct CardView: View {
                     }
                     
                     // pays
-                    Text(card.pays)
+                    Text(lieu.pays)
                         .font(.headline)
                         .bold()
                     
-                    Text(card.description)
+                    Text(lieu.description)
                         .font(.caption)
                         .lineLimit(2)
                     
@@ -68,5 +68,5 @@ struct CardView: View {
 
 // données de test envoyé à la vue (index0)
 #Preview {
-        CardView(card: Card.cardTest[0])
+        CardView(lieu: Lieu.cardTest[0])
 }

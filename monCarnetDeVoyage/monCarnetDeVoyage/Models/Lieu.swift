@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct Card: Identifiable {
+struct Lieu: Identifiable {
     
     var id = UUID()
     var photo : String
@@ -15,6 +15,14 @@ struct Card: Identifiable {
     var pays : String
     var description : String
     var note : Int
+    let visite: Bool
+    
+    
+    // CaseIterable : type qui fournit une collection de toutes ses valeurs.
+//    enum statut : CaseIterable {
+//        case aVisiter,
+//        case dejaVisiter
+//    }
 
 }
 
