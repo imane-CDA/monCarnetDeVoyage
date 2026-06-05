@@ -8,118 +8,173 @@
 import SwiftUI
 
 struct DetailCardView: View {
-    
+
     // injecte une card de type Card
     var card: Lieu
     
-    var body: some View {
-            
-        // Vstack principal
-        VStack {
-                
-        
-            // Image
-            Image(card.photo)
-                .resizable()
-                .scaledToFill()
-                .frame(maxWidth: .infinity)
-                .frame(maxHeight : 300)
-                .clipShape(RoundedRectangle(cornerRadius: 40))
-                .ignoresSafeArea()
-                .padding(.bottom, -55)
-            
-            
-            // Vstack ville + pays + description
-            VStack (alignment: .leading, spacing: 6) {
-                
-                HStack {
-                    
-                    // ville + modifier
-                    Text(card.ville)
-                        .font(.largeTitle)
-                        .bold()
-                        .foregroundStyle(Color(.cyan))
-                    
-                    Spacer()
-                    
-                    Button {
-                        // Vue
-                    } label : {
-                        Image(systemName: "square.and.pencil.circle.fill")
-                            .font(.title)
-                            .foregroundStyle(.pink).opacity(0.6)
-                        
-                    }
-                }
+    @State private var selection : Bool = false
 
-               
-                
-                
-                // pays + pin
-                HStack {
-                    
-                    Text(card.pays)
-                        .font(.title)
-                        .foregroundStyle(Color(.cyan))
-                    
-                    Image(systemName: "pin.fill")
-                        .font(.callout)
-                        .foregroundStyle(.pink).opacity(0.6)
-                    
-                    Spacer()
-                    
-                    // Hstack note
-                    HStack(spacing: 2) {
-                        
-                        ForEach(0..<5) { i in
-    
-                            Image(systemName: i < card.note ? "star.fill" : "star")
-                                .foregroundStyle(.yellow)
-                                .font(.caption2)
+    var body: some View {
+
+        ScrollView {
+
+            // Vstack principal
+            VStack(spacing: 24) {
+
+                // Image
+                ZStack(alignment: .topTrailing) {
+
+                    Image(card.photo)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: 320)
+                        .frame(maxWidth: .infinity)
+                        .clipped()
+
+                    Circle()
+                        .fill(.ultraThinMaterial)
+                        .frame(width: 50, height: 50)
+                        .overlay {
+
+                            Button {
+                                selection.toggle()
+                            } label : {
+                                Image(systemName: selection ? "heart.fill" : "heart")
+                                    .font(.headline)
+                            } .foregroundColor(Color.roseSoleil)
+                                .padding(12)
+                                .background(.ultraThinMaterial)
+                                .clipShape(Circle())
+                                .padding()
+                        }
+                        .padding()
+                }
+                .clipShape(
+                    RoundedRectangle(
+                        cornerRadius: 36
+                    )
+                )
+                .padding(.horizontal)
+
+                // Vstack ville + pays + description
+                VStack(alignment: .leading, spacing: 16) {
+
+                    HStack {
+
+                        // ville + modifier
+                        Text(card.ville)
+                            .font(.system(size: 34))
+                            .fontWeight(.bold)
+                            .foregroundColor(Color.roseSoleil)
+
+                        Spacer()
+
+                        NavigationLink {
+            
+                            ModifierCardView()
+
+                        } label: {
+
+                            Image(systemName: "square.and.pencil.circle.fill")
+                                .font(.title)
+                                .foregroundColor(Color.roseSoleil)
                         }
                     }
-                    
-                }
-               
-                
-                Text(card.description)
-                    .italic()
-                    .padding(.top, 10)
-                    .padding(.bottom, 30)
-                
-                
-                HStack {
-                    
-                    if card.visite == true {
-                        Text("Statut : Visité")
-                    } else {
-                        Text("Statut : À visiter")
+
+                    // pays + pin
+                    HStack {
+
+
+                            Text(card.pays)
+                                .font(.title3)
+                                .foregroundStyle(.gray)
+
+                            Image(systemName: "location.fill")
+                            .foregroundColor(Color.gray)
+
+                        Spacer()
+
+                        // Hstack note
+                        HStack(spacing: 3) {
+
+                            ForEach(0..<5) { i in
+
+                                Image(
+                                    systemName:
+                                        i < card.note
+                                        ? "star.fill"
+                                        : "star"
+                                )
+                                .foregroundColor(.yellow)
+                            }
+                        }
                     }
+
+                    // séprateur
+                    Divider()
+
+                    // a propose
+                    Text("À propos")
+                        .font(.headline)
+
+                    // description
+                    Text(card.description)
+                        .font(.body)
+                        .foregroundColor(.gray)
+                        .lineSpacing(6)
+
+                    VStack(alignment: .leading, spacing: 12) {
+
+                        // Localisation
+                        Text("Localisation")
+                            .font(.headline)
+
+                        // MAP --> a faire
+                        Image("map")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(height: 260)
+                            .frame(maxWidth: .infinity)
+                            .clipped()
+                            .clipShape(
+                                RoundedRectangle(
+                                    cornerRadius: 24
+                                )
+                            )
+                    }
+
+                    Spacer()
                 }
-                
-                ZStack {
-                               RoundedRectangle(cornerRadius: 16)
-                        .fill(.cyan)
-                               
-                               Text(card.ville)
-                                   .font(.title)
-                                   .foregroundColor(.white)
-                           }
-                
-                
-                Spacer()
-                
-            } .padding(.horizontal)
-                
-            
-            
-            
-           
+                .padding()
+                .background(.white)
+                .clipShape(
+                    RoundedRectangle(
+                        cornerRadius: 30
+                    )
+                )
+                .shadow(
+                    color: .black.opacity(0.05),
+                    radius: 12,
+                    y: 5
+                )
+                .padding(.horizontal)
+            }
+            .padding(.vertical)
         }
+        .background(Color.beigeClair)
+        .scrollIndicators(.hidden)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 #Preview {
+
     // je passe les données à la vue de la card index 0
-    DetailCardView(card : Lieu.cardTest[0])
+    NavigationStack {
+
+        DetailCardView(
+            card: Lieu.cardTest[0]
+        )
+        
+    }
 }

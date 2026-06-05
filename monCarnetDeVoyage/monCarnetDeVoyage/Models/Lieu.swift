@@ -15,7 +15,7 @@ struct Lieu: Identifiable {
     var pays : String
     var description : String
     var note : Int
-    let visite: Bool
+    var visite: Bool
     
     
     // CaseIterable : type qui fournit une collection de toutes ses valeurs.
