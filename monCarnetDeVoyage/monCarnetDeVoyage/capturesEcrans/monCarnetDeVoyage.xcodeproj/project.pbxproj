@@ -6,12 +6,7 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		EEBB3CE02FD974A700A44671 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = EEBB3CDE2FD974A700A44671 /* README.md */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXFileReference section */
-		EEBB3CDE2FD974A700A44671 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		EEE342272FD0992400ACAA4D /* monCarnetDeVoyage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = monCarnetDeVoyage.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -37,7 +32,6 @@
 		EEE3421E2FD0992400ACAA4D = {
 			isa = PBXGroup;
 			children = (
-				EEBB3CDE2FD974A700A44671 /* README.md */,
 				EEE342292FD0992400ACAA4D /* monCarnetDeVoyage */,
 				EEE342282FD0992400ACAA4D /* Products */,
 			);
@@ -115,7 +109,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EEBB3CE02FD974A700A44671 /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
