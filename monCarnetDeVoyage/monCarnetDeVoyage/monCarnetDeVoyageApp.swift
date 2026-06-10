@@ -11,7 +11,11 @@ import SwiftUI
 struct monCarnetDeVoyageApp: App {
     var body: some Scene {
         WindowGroup {
-            DetailCardView(card : Lieu.cardTest[0])
+            
+            NavigationStack {
+                ProfilView(user: User.user)
+            }
+            
         }
     }
 }

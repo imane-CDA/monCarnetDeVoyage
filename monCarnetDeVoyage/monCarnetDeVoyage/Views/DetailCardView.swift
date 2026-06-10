@@ -1,180 +1,156 @@
-//
-//  DetailCardView.swift
-//  monCarnetDeVoyage
-//
-//  Created by Apprenant131 on 04/06/2026.
-//
-
 import SwiftUI
+import MapKit
 
 struct DetailCardView: View {
 
-    // injecte une card de type Card
-    var card: Lieu
+    @Environment(\.dismiss) var dismiss
+    @Binding var card: Lieu
+
+    var modifierLieu: (Lieu) -> Void
+    var supprimerLieu: (Lieu) -> Void
+
+    @State private var showEdit = false
+    @State private var showDeleteAlert = false
     
-    @State private var selection : Bool = false
+    private var mapPosition: MapCameraPosition {
+        .region(MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: card.latitude, longitude: card.longitude),
+            span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+        ))
+    }
 
     var body: some View {
+        ZStack {
+            Color("beigeClair").ignoresSafeArea()
 
-        ScrollView {
-
-            // Vstack principal
-            VStack(spacing: 24) {
-
-                // Image
-                ZStack(alignment: .topTrailing) {
-
-                    Image(card.photo)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(height: 320)
-                        .frame(maxWidth: .infinity)
-                        .clipped()
-
-                    Circle()
-                        .fill(.ultraThinMaterial)
-                        .frame(width: 50, height: 50)
-                        .overlay {
-
-                            Button {
-                                selection.toggle()
-                            } label : {
-                                Image(systemName: selection ? "heart.fill" : "heart")
-                                    .font(.headline)
-                            } .foregroundColor(Color.roseSoleil)
-                                .padding(12)
-                                .background(.ultraThinMaterial)
-                                .clipShape(Circle())
-                                .padding()
-                        }
-                        .padding()
-                }
-                .clipShape(
-                    RoundedRectangle(
-                        cornerRadius: 36
-                    )
-                )
-                .padding(.horizontal)
-
-                // Vstack ville + pays + description
-                VStack(alignment: .leading, spacing: 16) {
-
-                    HStack {
-
-                        // ville + modifier
-                        Text(card.ville)
-                            .font(.system(size: 34))
-                            .fontWeight(.bold)
-                            .foregroundColor(Color.roseSoleil)
-
-                        Spacer()
-
-                        NavigationLink {
-            
-                            ModifierCardView()
-
-                        } label: {
-
-                            Image(systemName: "square.and.pencil.circle.fill")
-                                .font(.title)
-                                .foregroundColor(Color.roseSoleil)
-                        }
-                    }
-
-                    // pays + pin
-                    HStack {
-
-
-                            Text(card.pays)
-                                .font(.title3)
-                                .foregroundStyle(.gray)
-
-                            Image(systemName: "location.fill")
-                            .foregroundColor(Color.gray)
-
-                        Spacer()
-
-                        // Hstack note
-                        HStack(spacing: 3) {
-
-                            ForEach(0..<5) { i in
-
-                                Image(
-                                    systemName:
-                                        i < card.note
-                                        ? "star.fill"
-                                        : "star"
-                                )
-                                .foregroundColor(.yellow)
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 0) {
+                    
+                    GeometryReader { geo in
+                        ZStack(alignment: .bottomLeading) {
+                            if let data = card.photo, let uiImage = UIImage(data: data) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: geo.size.width, height: 360)
+                                    .clipped()
+                            } else {
+                                Color.gray.opacity(0.2)
+                                    .frame(width: geo.size.width, height: 360)
                             }
+                            LinearGradient(colors: [.clear, .black.opacity(0.5)], startPoint: .center, endPoint: .bottom)
                         }
                     }
-
-                    // séprateur
-                    Divider()
-
-                    // a propose
-                    Text("À propos")
-                        .font(.headline)
-
-                    // description
-                    Text(card.description)
-                        .font(.body)
-                        .foregroundColor(.gray)
-                        .lineSpacing(6)
-
-                    VStack(alignment: .leading, spacing: 12) {
-
-                        // Localisation
-                        Text("Localisation")
-                            .font(.headline)
-
-                        // MAP --> a faire
-                        Image("map")
-                            .resizable()
-                            .scaledToFill()
-                            .frame(height: 260)
-                            .frame(maxWidth: .infinity)
-                            .clipped()
-                            .clipShape(
-                                RoundedRectangle(
-                                    cornerRadius: 24
-                                )
-                            )
+                    .frame(height: 360)
+                    .clipped()
+                    .overlay(alignment: .bottomLeading) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(card.ville).font(.system(size: 34, weight: .bold)).foregroundStyle(.white)
+                            Text(card.pays).foregroundStyle(.white.opacity(0.85))
+                        }
+                        .padding(20)
                     }
 
-                    Spacer()
+                    VStack(spacing: 16) {
+                        
+                        HStack(spacing: 12) {
+                            HStack(spacing: 4) {
+                                ForEach(1...5, id: \.self) { i in
+                                    Image(systemName: i <= card.note ? "star.fill" : "star")
+                                        .foregroundStyle(i <= card.note ? .yellow : .gray.opacity(0.3))
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(14)
+                            .background(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+
+                            Text(card.statut.rawValue)
+                                .font(.subheadline.weight(.semibold))
+                                .frame(maxWidth: .infinity)
+                                .padding(14)
+                                .background(Color("bleuLagon"))
+                                .foregroundStyle(.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                                .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+                        }
+                        .padding(.horizontal, 16)
+                        .offset(y: -25)
+                        .padding(.bottom, -25)
+
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("À propos").font(.headline)
+                            Text(card.description.isEmpty ? "Aucune description pour ce lieu" : card.description)
+                                .foregroundStyle(.secondary)
+                                .lineSpacing(5)
+                        }
+                        .padding(18)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .shadow(color: .black.opacity(0.05), radius: 10)
+
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Text("Localisation").font(.headline)
+                                Spacer()
+                                Image(systemName: "map.fill").foregroundStyle(Color("roseSoleil"))
+                            }
+                            
+                            Map(initialPosition: mapPosition) {
+                                Annotation(card.ville, coordinate: CLLocationCoordinate2D(latitude: card.latitude, longitude: card.longitude)) {
+                                    Image(systemName: "mappin.circle.fill")
+                                        .font(.title)
+                                        .foregroundStyle(.red)
+                                }
+                            }
+                            .frame(height: 200)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                        }
+                        .padding(18)
+                        .background(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .shadow(color: .black.opacity(0.05), radius: 10)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 40)
+                    .padding(.bottom, 30)
                 }
-                .padding()
-                .background(.white)
-                .clipShape(
-                    RoundedRectangle(
-                        cornerRadius: 30
-                    )
-                )
-                .shadow(
-                    color: .black.opacity(0.05),
-                    radius: 12,
-                    y: 5
-                )
-                .padding(.horizontal)
             }
-            .padding(.vertical)
         }
-        .background(Color.beigeClair)
-        .scrollIndicators(.hidden)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button { showEdit = true } label: { Image(systemName: "square.and.pencil") }
+            }
+            ToolbarItem(placement: .topBarLeading) {
+                Button(role: .destructive) { showDeleteAlert = true } label: { Image(systemName: "trash") }
+            }
+        }
+        .alert("Supprimer ce lieu ?", isPresented: $showDeleteAlert) {
+            Button("Supprimer", role: .destructive) {
+                withAnimation(.easeInOut) { supprimerLieu(card); dismiss() }
+            }
+            Button("Annuler", role: .cancel) {}
+        }
+        .sheet(isPresented: $showEdit) {
+            ModifierCardView(
+                lieu: $card,
+                modifierLieu: modifierLieu,
+                supprimerLieu: supprimerLieu,
+                onSave: { showEdit = false },
+                onDelete: { showEdit = false; dismiss() }
+            )
+        }
     }
 }
 
+
 #Preview {
-
-    // je passe les données à la vue de la card index 0
-    NavigationStack {
-
-        DetailCardView(
-            card: Lieu.cardTest[0]
-        )
-        
-    }
+    DetailCardView(
+        card: .constant(Lieu.cardTest[0]),
+        modifierLieu: { _ in },
+        supprimerLieu: { _ in }
+    )
 }

@@ -7,9 +7,11 @@
 
 import SwiftUI
 
+
 struct User: Identifiable {
     
-    var id = UUID()
+
+    let id = UUID()
     var pseudo : String
     var photo : String
     

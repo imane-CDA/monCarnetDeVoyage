@@ -1,194 +1,181 @@
-//
-//  ProfilView.swift
-//  monCarnetDeVoyage
-//
-//  Created by Apprenant131 on 03/06/2026.
-//
-
 import SwiftUI
 
-
 struct ProfilView: View {
-    
-    
-    // injecte user de type User (model User)
+
     var user: User
-    
-    // variable dynamique contenant la recherche utilisateur
+
     @State private var recherche = ""
-    
-    // variable dynamique contenant le tableau des lieux
-    @State private var lieux = Lieu.cardTest
-    
-    // variable dynamique contenant tout les lieux
+    @State private var lieux: [Lieu] = Lieu.cardTest
+    @State private var ouvrirFormulaire = false
     @State private var filtreSelectionne: Filtre = .tous
     
-    // enum --> statut des lieux
+    @State private var selectedLieuID: UUID?
+
     enum Filtre {
-        case tous
-        case visite
-        case aVisiter
+        case tous, visite, aVisiter
     }
-    
-    // tableau des lieux en fonction de leurs status
+
     var lieuxFiltres: [Lieu] {
-        switch filtreSelectionne {
-        case .tous:
-            return lieux
-        case .visite:
-            return lieux.filter { $0.visite }
-        case .aVisiter:
-            return lieux.filter { !$0.visite }
+        let base = switch filtreSelectionne {
+        case .tous: lieux
+        case .visite: lieux.filter { $0.statut == .visite }
+        case .aVisiter: lieux.filter { $0.statut == .aVisiter }
+        }
+
+        guard !recherche.isEmpty else { return base }
+
+        return base.filter {
+            $0.ville.localizedCaseInsensitiveContains(recherche) ||
+            $0.pays.localizedCaseInsensitiveContains(recherche)
         }
     }
-    
-    // fonction bouton
-     func filtreButton(_ titre: String, _ filtre: Filtre, _ couleur: Color) -> some View {
-        
-        Button {
-            filtreSelectionne = filtre
-        } label: {
-            Text(titre)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 10)
-                .background(filtreSelectionne == filtre ? couleur : .white)
-                .foregroundStyle(filtreSelectionne == filtre ? .white : couleur)
-                .clipShape(Capsule())
-        }
-    }
-    
+
     var body: some View {
-        
-        ZStack {
-            Color.beigeClair.ignoresSafeArea()
-            
-            ScrollView {
-                
-                VStack(spacing: 24) {
-                    
-                    // profil + ajouter + barre de recherche + boutons
-                    VStack(spacing: 20) {
-                        
-                        HStack {
-                            
-                            // photo de profil
-                            Image(user.photo)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 80, height: 80)
-                                .clipShape(Circle())
-                                .overlay(
-                                    Circle()
-                                        .stroke(
-                                            LinearGradient(
-                                                colors: [.bleuLagon, .roseSoleil],
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
-                                            ),
-                                            lineWidth: 4
-                                        )
-                                )
-                            
-                            VStack(alignment: .leading) {
-                                
-                                // pseudo
-                                HStack {
-                                    Text(user.pseudo)
-                                        .font(.title)
-                                        .bold()
-                                }
-                                
-                                // description
-                                Text("Passionnée de voyages ✨")
-                                    .foregroundStyle(.gray)
-                            }
-                            
-                            Spacer()
-                            
-                            // NavigationLink : Ajouter lieu
-                            NavigationLink {
-                                
-                                AjoutCardView()
-                                
-                            } label: {
-                                Image(systemName: "plus")
-                                    .font(.title3)
-                                    .bold()
-                                    .foregroundStyle(.white)
-                                    .frame(width: 35, height: 35)
-                                    .background(Color.bleuLagon)
+
+        NavigationStack {
+
+            ZStack {
+                Color.beigeClair.ignoresSafeArea()
+
+                ScrollView(showsIndicators: false) {
+
+                    VStack(spacing: 18) {
+
+                        VStack(alignment: .leading, spacing: 14) {
+
+                            HStack {
+                                Image(user.photo)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 60, height: 60)
                                     .clipShape(Circle())
+
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(user.pseudo)
+                                        .font(.title2.bold())
+
+                                    Text("Explore tes voyages ✈️")
+                                        .foregroundStyle(.secondary)
+                                }
+
+                                Spacer()
+
+                                Button {
+                                    ouvrirFormulaire = true
+                                } label: {
+                                    Image(systemName: "plus")
+                                        .font(.headline)
+                                        .foregroundStyle(.white)
+                                        .frame(width: 42, height: 42)
+                                        .background(Color.bleuLagon)
+                                        .clipShape(Circle())
+                                }
                             }
+
+                            HStack {
+                                Image(systemName: "magnifyingglass")
+                                    .foregroundStyle(.secondary)
+
+                                TextField("Bali, Tokyo, Paris...", text: $recherche)
+                            }
+                            .padding(12)
+                            .background(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
                         }
-                        
-                        // barre de recherche
-                        HStack {
-                            
-                            Image(systemName: "magnifyingglass")
-                            
-                            TextField("Bali, Tokyo, Paris...", text: $recherche)
-                            
-                        }
-                        .padding(10)
-                        .background(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 18))
-                        
-                        // Titre
+                        .padding(.horizontal)
+
                         HStack {
                             VStack(alignment: .leading) {
                                 Text("Mes destinations")
-                                    .font(.title2)
-                                    .bold()
-                                
-                                // nbr lieux (tous, visité, à visité)
+                                    .font(.title3.bold())
+
                                 Text("\(lieuxFiltres.count) lieux")
-                                    .foregroundStyle(.gray)
+                                    .foregroundStyle(.secondary)
                             }
                             Spacer()
                         }
-                        
-                        // fonction boutons filtré (nom, statut, couleur)
-                        HStack(spacing: 12) {
-                            
+                        .padding(.horizontal)
+
+                        HStack(spacing: 10) {
                             filtreButton("Tous", .tous, .bleuLagon)
-                            
                             filtreButton("Visités", .visite, .violetPastel)
-                            
                             filtreButton("À découvrir", .aVisiter, .roseSoleil)
                         }
-                    }
-                    .padding()
-                    
-                    // LazyVStack affiche les lieux filtré
-                    LazyVStack(spacing: 22) {
-                                                    
-                        // Boucle sur les lieux (status) pour afficher DetailCardView
+                        .padding(.horizontal)
+
+                        VStack(spacing: 18) {
                             ForEach(lieuxFiltres) { lieu in
-                                
-                                NavigationLink {
-                                    DetailCardView(card: lieu)
-                                } label: {
-                                    CardView(lieu: lieu)
-                                
-                                }
-                                .buttonStyle(.plain)
-                                .buttonStyle(.plain)
-                                .contentShape(Rectangle())
+                                CardView(lieu: lieu)
+                                    .allowsHitTesting(false)
+                                    .contentShape(RoundedRectangle(cornerRadius: 28))
+                                    .onTapGesture {
+                                        selectedLieuID = lieu.id
+                                    }
                             }
                         }
                         .padding(.horizontal)
+                        .padding(.bottom, 20)
+                        .id(filtreSelectionne)
                     }
-                }.scrollIndicators(.hidden)
-                
+                    .padding(.top, 10)
+                }
+            }
+            
+            .navigationDestination(item: $selectedLieuID) { idSelectionne in
+                if let index = lieux.firstIndex(where: { $0.id == idSelectionne }) {
+                    DetailCardView(
+                        card: $lieux[index],
+                        modifierLieu: modifierLieu,
+                        supprimerLieu: supprimerLieu
+                    )
+                    .onDisappear {
+                                recherche = "" 
+                            }
+                }
+            }
+
+            .sheet(isPresented: $ouvrirFormulaire) {
+                AjoutCardView { nouveauLieu in
+                    withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
+                        lieux.insert(nouveauLieu, at: 0)
+                    }
+                }
             }
         }
     }
 
+    func filtreButton(_ title: String, _ filtre: Filtre, _ color: Color) -> some View {
+        Button {
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                filtreSelectionne = filtre
+            }
+            
+        } label: {
+            Text(title)
+                .font(.subheadline.weight(.medium))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(filtreSelectionne == filtre ? color : .white)
+                .foregroundStyle(filtreSelectionne == filtre ? .white : .primary)
+                .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+    }
+
+    func modifierLieu(_ lieu: Lieu) {
+        if let index = lieux.firstIndex(where: { $0.id == lieu.id }) {
+            lieux[index] = lieu
+        }
+    }
+
+    func supprimerLieu(_ lieu: Lieu) {
+        selectedLieuID = nil
+        withAnimation {
+            lieux.removeAll { $0.id == lieu.id }
+        }
+    }
+}
 
 #Preview {
-
-    NavigationStack {
-
-        ProfilView(user: User.user)
-    }
+    ProfilView(user: User.user)
 }
